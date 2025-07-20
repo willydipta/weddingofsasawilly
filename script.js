@@ -91,12 +91,18 @@ async function loadGuestbookMessages() {
     // URL WEB APP GOOGLE APPS SCRIPT UNTUK MEMBACA PESAN (URL yang Anda berikan)
     const GOOGLE_APP_SCRIPT_MESSAGES_URL = 'https://script.google.com/macros/s/AKfycbybqNh4Y6jvDTAxHmP8iZpGcTF0yAtaO75oqUIfnEodmVuqGmrCEzx8WOC7YshvNa6z/exec'; 
 
+    console.log('Mencoba memuat pesan dari:', GOOGLE_APP_SCRIPT_MESSAGES_URL); // Debugging log
+
     try {
         const response = await fetch(GOOGLE_APP_SCRIPT_MESSAGES_URL);
+        console.log('Response dari Apps Script:', response); // Debugging log
+
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
+        
         const data = await response.json(); // Asumsikan Apps Script mengembalikan JSON
+        console.log('Data yang diterima dari Apps Script:', data); // Debugging log
 
         loadingMessage.style.display = 'none';
 
@@ -116,7 +122,7 @@ async function loadGuestbookMessages() {
         }
 
     } catch (error) {
-        console.error('Error loading guestbook messages:', error);
+        console.error('Error loading guestbook messages:', error); // Debugging log
         loadingMessage.style.display = 'none';
         errorMessage.style.display = 'block';
     }
