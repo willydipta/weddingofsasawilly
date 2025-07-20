@@ -386,7 +386,8 @@ footer p {
 
 /* Modal Styling */
 .modal-overlay {
-    display: none; /* Hidden by default */
+    /* Perbaikan: Pastikan display: none; adalah yang terakhir untuk menyembunyikan secara default */
+    display: none; 
     position: fixed; /* Stay in place */
     z-index: 1001; /* Sit on top */
     left: 0;
@@ -395,8 +396,7 @@ footer p {
     height: 100%; /* Full height */
     overflow: auto; /* Enable scroll if needed */
     background-color: rgba(0,0,0,0.6); /* Black w/ opacity */
-    display: flex; /* Use flex to center content */
-    align-items: center;
+    align-items: center; /* Use flex to center content */
     justify-content: center;
 }
 
