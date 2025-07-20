@@ -95,12 +95,18 @@ async function loadGuestbookMessages() {
 
     try {
         const response = await fetch(GOOGLE_APP_SCRIPT_MESSAGES_URL);
-        console.log('Response dari Apps Script:', response); // Debugging log
+        console.log('Response status:', response.status); // Debugging log
+        console.log('Response status text:', response.statusText); // Debugging log
 
         if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+            // Coba baca respons teks meskipun tidak ok, untuk info lebih lanjut
+            const errorText = await response.text();
+            console.error('HTTP error response body:', errorText); // Debugging log
+            throw new Error(`HTTP error! status: ${response.status} - ${response.statusText || 'Unknown Error'}`);
         }
         
+        // Coba clone response untuk inspeksi jika parsing gagal
+        const clonedResponse = response.clone();
         const data = await response.json(); // Asumsikan Apps Script mengembalikan JSON
         console.log('Data yang diterima dari Apps Script:', data); // Debugging log
 
@@ -123,6 +129,10 @@ async function loadGuestbookMessages() {
 
     } catch (error) {
         console.error('Error loading guestbook messages:', error); // Debugging log
+        // Jika parsing JSON gagal, coba log respons teks mentah
+        if (error instanceof SyntaxError && clonedResponse) {
+            console.error('Gagal memparsing JSON. Respons teks mentah:', await clonedResponse.text());
+        }
         loadingMessage.style.display = 'none';
         errorMessage.style.display = 'block';
     }
@@ -130,3 +140,58 @@ async function loadGuestbookMessages() {
 
 // Muat pesan saat halaman dimuat
 document.addEventListener('DOMContentLoaded', loadGuestbookMessages);
+
+
+// --- Gifts Modal Logic ---
+document.addEventListener('DOMContentLoaded', function() {
+    const openGiftModalBtn = document.getElementById('openGiftModal');
+    const giftModal = document.getElementById('giftModal');
+    const closeModalBtn = document.querySelector('.close-button-modal');
+    const copyAccountNumberBtn = document.getElementById('copyAccountNumber');
+    const copyConfirmationSpan = document.getElementById('copyConfirmation');
+
+    // Open Modal
+    if (openGiftModalBtn) {
+        openGiftModalBtn.addEventListener('click', function() {
+            giftModal.style.display = 'flex'; // Use flex to center
+        });
+    }
+
+    // Close Modal
+    if (closeModalBtn) {
+        closeModalBtn.addEventListener('click', function() {
+            giftModal.style.display = 'none';
+            copyConfirmationSpan.textContent = ''; // Clear confirmation message
+        });
+    }
+
+    // Close modal when clicking outside of the modal content
+    if (giftModal) {
+        giftModal.addEventListener('click', function(event) {
+            if (event.target === giftModal) {
+                giftModal.style.display = 'none';
+                copyConfirmationSpan.textContent = ''; // Clear confirmation message
+            }
+        });
+    }
+
+    // Copy Account Number
+    if (copyAccountNumberBtn) {
+        copyAccountNumberBtn.addEventListener('click', function() {
+            const accountNumber = '8175328137'; // The account number
+            // Use document.execCommand('copy') for clipboard functionality in iframes
+            const tempInput = document.createElement('textarea');
+            tempInput.value = accountNumber;
+            document.body.appendChild(tempInput);
+            tempInput.select();
+            try {
+                document.execCommand('copy');
+                copyConfirmationSpan.textContent = 'Nomor rekening berhasil disalin!';
+            } catch (err) {
+                console.error('Gagal menyalin nomor rekening:', err);
+                copyConfirmationSpan.textContent = 'Gagal menyalin. Mohon salin manual.';
+            }
+            document.body.removeChild(tempInput);
+        });
+    }
+});
